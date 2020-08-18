@@ -1,0 +1,48 @@
+A schedule cannot be specified for child tasks in a simple tree of tasks (i.e. tasks that have a predecessor task set using the AFTER parameter).
+
+USING CRON expr time_zone
+Specifies a cron expression and time zone for periodically running the task. Supports a subset of standard cron utility syntax.
+
+For a list of time zones, see the list of tz database time zones(in Wikipedia).
+
+The cron expression consists of the following fields:
+
+# __________ minute (0-59)
+# | ________ hour (0-23)
+# | | ______ day of month (1-31, or L)
+# | | | ____ month (1-12, JAN-DEC)
+# | | | | _ day of week (0-6, SUN-SAT, or L)
+# | | | | |
+# | | | | |
+  * * * * *
+The following special characters are supported:
+
+*
+Wildcard. Specifies any occurrence of the field.
+
+L
+Stands for “last”. When used in the day-of-week field, it allows you to specify constructs such as “the last Friday” (“5L”) of a given month. In the day-of-month field, it specifies the last day of the month.
+
+/n
+Indicates the nth instance of a given unit of time. For example, if 4/3 is specified in the month field, then task is scheduled for April, July and October (i.e. every 3 months, starting with the 4th month of the year).
+
+Note
+
+The cron expression currently evaluates against the specified time zone only. Altering the TIMEZONE parameter value for the account (or setting the value at the user or session level) does not change the time zone for the task.
+
+The cron expression defines all valid run times for the task. Snowflake attempts to run a task based on this schedule; however, any valid run time is skipped if a previous run has not completed before the next valid run time starts.
+
+When both a specific day of month and day of week are included in the cron expression, then the task is scheduled on days satisfying either the day of month or day of week. For example, SCHEDULE = 'USING CRON 0 0 10-20 * TUE,THU UTC' schedules a task at 0AM on any 10th to 20th day of the month and also on any Tuesday or Thursday outside of those dates.
+
+num MINUTE
+Specifies an interval (in minutes) of wait time inserted between runs of the task. Accepts positive integers only.
+
+Also supports num M syntax.
+
+To avoid ambiguity, a base interval time is set when:
+
+When the task is resumed (using ALTER TASK … RESUME) or
+
+When a different interval is set (using ALTER TASK … SET SCHEDULE)
+
+The base interval time starts the interval counter from the current clock time. For example, if an INTERVAL value of 10 is set and the task is enabled at 9:03 AM, then the task runs at 9:13 AM, 9:23 AM, and so on. Note that we make a best effort to ensure absolute precision, but only guarantee that tasks do not execute before their set interval occurs (e.g. in the current example, the task could first run at 9:14 AM, but will definitely not run at 9:12 AM).
