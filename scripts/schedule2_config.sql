@@ -46,7 +46,7 @@ FROM VALUES (
       S.UPDATED_TS
   )
   $$,
-  'Data Mapping', 'BI-1002 : New Partner_Id mapping for syndication from DRID', 1, 10, 1, '[24]'
+  'Data Mapping', 'BI-1002 : New Partner_Id mapping for syndication from DRID', true, 10, 1, '[24]'
   )
 ) S
 ON D.JOB_LABEL = S.JOB_LABEL
@@ -123,7 +123,7 @@ FROM VALUES (
       ,S.NOTES
   )
   $$,
-  'Data Mapping', 'BI-1047: New Source_Tag mapping for GINSU from Yahoo data', 1, 20, 1, '[24]'
+  'Data Mapping', 'BI-1047: New Source_Tag mapping for GINSU from Yahoo data', true, 20, 1, '[24]'
   )
 ) S
 ON D.JOB_LABEL = S.JOB_LABEL
@@ -197,7 +197,7 @@ FROM VALUES (
       ,S.UPDATED_TS
   )
   $$,
-  'Data Mapping', 'BI-1102: New Partner_id mapping for distributed search', 1, 30, 1, '[24]'
+  'Data Mapping', 'BI-1102: New Partner_id mapping for distributed search', true, 30, 1, '[24]'
   )
 ) S
 ON D.JOB_LABEL = S.JOB_LABEL
@@ -374,7 +374,7 @@ FROM VALUES (
     ,S.LOCAL_CURRENCY
   )
   $$,
-  'Manual Entry', 'BI-1139: Re-formatted MapQuest ClickTripz performance daily', 1, 100, 1, '[24]'
+  'Manual Entry', 'BI-1139: Re-formatted MapQuest ClickTripz performance daily', true, 100, 1, '[24]'
   )
 ) S
 ON D.JOB_LABEL = S.JOB_LABEL
@@ -419,7 +419,7 @@ SELECT $1 JOB_LABEL
     ,$5 JOB_ENABLED
     ,$6 JOB_PRIORITY
     ,$7 SCHEDULE_BATCH_ID
-    ,PARSE_JSON($8) SCHEDULE_EXPRESSION
+    ,$8::VARIANT SCHEDULE_EXPRESSION
 FROM VALUES (
   'pop_sessions_and_pageviews_summary_data', 
   $$
@@ -490,7 +490,7 @@ FROM VALUES (
     S.PAGEVIEWS
   )
   $$,
-  'Data Poulation', 'BI-1144: Populate sessions and pageviews summary', 1, NULL, 0, '[10,12,14,16,18]'
+  'Data Poulation', 'BI-1144: Populate sessions and pageviews summary', true, NULL, 2, '20 10/2-19 * * *'
   )
 ) S
 ON D.JOB_LABEL = S.JOB_LABEL
@@ -595,7 +595,7 @@ FROM VALUES (
       ,S.SPEND
   )
   $$,
-  'Manual Entry', 'BI-1151: Publishing quora manual entry spend', 1, 120, 1, '[24]'
+  'Manual Entry', 'BI-1151: Publishing quora manual entry spend', true, 120, 1, '[24]'
   )
 ) S
 ON D.JOB_LABEL = S.JOB_LABEL
@@ -640,13 +640,13 @@ SELECT $1 JOB_LABEL
     ,$5 JOB_ENABLED
     ,$6 JOB_PRIORITY
     ,$7 SCHEDULE_BATCH_ID
-    ,PARSE_JSON($8) SCHEDULE_EXPRESSION
+    ,$8::VARIANT SCHEDULE_EXPRESSION
 FROM VALUES (
   'buyside_account_data_tracking',
   $$
   CALL ALERTS.BUYSIDE_ACCOUNT_DATA_TRACKING_SCHEDULER ();
   $$,
-  'Data Poulation', 'BI-1194: Populating buyside account data tracking', 1, 210, 2, '[24]'
+  'Data Poulation', 'BI-1194: Populating buyside account data tracking', true, 210, 2, '15 * * * *'
   )
 ) S
 ON D.JOB_LABEL = S.JOB_LABEL
@@ -751,7 +751,7 @@ FROM VALUES (
       ,S.SPEND
   )
   $$,
-  'Manual Entry', 'BI-1026: Waterfox Playanext manual spend', 1, 130, 1, '[24]'
+  'Manual Entry', 'BI-1026: Waterfox Playanext manual spend', true, 130, 1, '[24]'
   )
 ) S
 ON D.JOB_LABEL = S.JOB_LABEL
@@ -856,7 +856,7 @@ FROM VALUES (
       ,S.SPEND
   )
   $$,
-  'Manual Entry', 'BI-1046: Ginbsu cnn manual entry spend', 1, 140, 1, '[24]'
+  'Manual Entry', 'BI-1046: Ginbsu cnn manual entry spend', true, 140, 1, '[24]'
   )
 ) S
 ON D.JOB_LABEL = S.JOB_LABEL
@@ -911,4 +911,4 @@ CALL SINGLE_SNOW_QUERY_JOB_SCHEDULER(false);
 --
 -- Call SP to run all enabled jobs
 --
-CALL SINGLE_SNOW_QUERY_JOB_SCHEDULER(true, 1);
+CALL SINGLE_SNOW_QUERY_JOB_SCHEDULER(true, 2);
