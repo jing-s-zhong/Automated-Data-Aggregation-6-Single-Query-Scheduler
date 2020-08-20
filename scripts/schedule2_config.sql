@@ -1063,7 +1063,7 @@ SELECT $1 JOB_LABEL
 FROM VALUES (
   'set_all_forecasted_revenue_monthly_config',
   $$
-  CALL MANUAL_ENTRY.SELLSIDE_CONTRACT_MANUAL_ENTRY_MONTHLY_SETUP (TO_VARCHAR(CURRENT_DATE()+1))
+  CALL MANUAL_ENTRY.SELLSIDE_CONTRACT_MANUAL_ENTRY_MONTHLY_RENEW (TO_VARCHAR(CURRENT_DATE()+1))
   $$,
   'Manual Entry', 'BI-860: Method to add manual entry data for revenue', true, 330, 2, '- 23 L * *'
   )
