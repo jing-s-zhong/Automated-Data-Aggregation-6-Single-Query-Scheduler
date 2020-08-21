@@ -19,11 +19,11 @@ CREATE OR REPLACE TABLE SINGLE_SNOW_QUERY_JOBS (
   JOB_PRIORITY NUMBER COMMENT 'Scheudle order of the job',
   SCHEDULE_BATCH_ID NUMBER COMMENT 'Scheduled in batch by same batch_id',
   SCHEDULE_EXPRESSION VARIANT COMMENT 'Job schedule pattern',        -- 0-23: daily scheduled hour; 24: 24 hours a day
-  TIME_OF_NEXT_RUN TIMESTAMP_NTZ COMMENT 'Time of the next job schedule',
+  TIME_OF_NEXT_SCHEDULE TIMESTAMP_NTZ COMMENT 'Time of the next job schedule',
   TIME_OF_LAST_RUN TIMESTAMP_NTZ COMMENT 'Time of the last job schedule',
   STATUS_OF_LAST_RUN VARCHAR COMMENT 'SLast run status of the job'
 );
---ALTER TABLE SINGLE_SNOW_QUERY_JOBS RENAME COLUMN SCHEDULE_ON_HOURS TO SCHEDULE_EXPRESSION;
+-- ALTER TABLE SINGLE_SNOW_QUERY_JOBS RENAME COLUMN TIME_OF_NEXT_RUN TO TIME_OF_NEXT_SCHEDULE;
 
 --
 -- Create a job scheduler SP for whole set
@@ -177,7 +177,7 @@ try {
         FROM SINGLE_SNOW_QUERY_JOBS
         WHERE JOB_ENABLED = :1
 		AND SCHEDULE_BATCH_ID = :2
-        AND COALESCE(DATEDIFF('MINUTE',TIME_OF_NEXT_RUN, CURRENT_TIMESTAMP),0) >= 0
+        AND COALESCE(DATEDIFF('MINUTE',TIME_OF_NEXT_SCHEDULE, CURRENT_TIMESTAMP),0) >= 0
         ORDER BY JOB_PRIORITY
 		`;
 	var snow_stmt = snowflake.createStatement({
@@ -214,7 +214,7 @@ try {
            
             var snow_sql = `
             UPDATE SINGLE_SNOW_QUERY_JOBS 
-            SET TIME_OF_NEXT_RUN = :4,
+            SET TIME_OF_NEXT_SCHEDULE = :4,
 				TIME_OF_LAST_RUN = CURRENT_TIMESTAMP,
                 STATUS_OF_LAST_RUN = :2
             WHERE JOB_LABEL = :1 
@@ -240,6 +240,7 @@ catch (err) {
 }
 $$;
 
+CALL SINGLE_SNOW_QUERY_JOB_SCHEDULER(true);
 
 CALL SINGLE_SNOW_QUERY_JOB_SCHEDULER(true, 2);
 select * from SINGLE_SNOW_QUERY_JOBS;
