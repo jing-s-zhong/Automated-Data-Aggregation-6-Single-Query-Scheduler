@@ -153,7 +153,7 @@ function cronScheduleTest(cronExpression, testTimestamp) {
 	let [testDate, testTime] = testTimestamp.toISOString().split("T");
 	let [testYear, testMonth, testDayOfMonth] = testDate.split("-").map(x => parseInt(x));
 	let [testHour, testMinute, testSecond] = testTime.slice(0,9).split(":").map(x => parseInt(x));
-	var lastDayOfMonth = (new Date(testYear, testMonth +1, 0)).getDate();
+	var lastDayOfMonth = (new Date(testYear, testMonth, 0)).getDate();
 	
 	// parse the cron expression
 	let [cronMinutes, cronHours, cronDayOfMonth, cronMonth, cronDayOfWeek] = cronExpression.split(" ");
