@@ -18,14 +18,14 @@ AS
 $$
 function cronItemParse(cronItem, cronFirst, cronLast) {
 	var itemOptions = [],
-		cronStart = cronFirst, 
-		cronStop = cronLast, 
+		cronStart = cronFirst,
+		cronStop = cronLast,
 		cronStep = 1;
 	if (cronItem.includes("-") || cronItem.includes("/")) {
 		var bounds = cronItem.split("-").map(x => parseInt(x));
 		cronStart = isNaN(bounds[0]) ? cronFirst : bounds[0];
 		if (bounds.length > 1) {
-			cronStop =  isNaN(bounds[1]) ? (isNaN(bounds[0]) ? cronFirst : cronLast) : bounds[1]
+			cronStop = isNaN(bounds[1]) ? (isNaN(bounds[0]) ? cronFirst : cronLast) : bounds[1]
 		}
 
 		var repeats = cronItem.split("-")[0].split("/").map(x => parseInt(x));
@@ -34,7 +34,7 @@ function cronItemParse(cronItem, cronFirst, cronLast) {
 			cronStep = repeats[1]
 		}
 	}
-	else if (cronItem === "L") {
+	else if (cronItem == "L") {
 		cronStart = cronLast;
 		cronStop = cronLast
 	}
@@ -45,7 +45,7 @@ function cronItemParse(cronItem, cronFirst, cronLast) {
     else if (cronLast == 59) {
         cronStep = 5
     }
-	for (i = cronStart; i <= cronStop; i+= cronStep) {
+	for (i = cronStart; i <= cronStop; i += cronStep) {
 		itemOptions.push(i)
 	}
     //return [cronStart, cronStop, cronStep];
@@ -72,14 +72,14 @@ AS
 $$
 function cronItemParse(cronItem, cronFirst, cronLast) {
 	var itemOptions = [],
-		cronStart = cronFirst, 
-		cronStop = cronLast, 
+		cronStart = cronFirst,
+		cronStop = cronLast,
 		cronStep = 1;
 	if (cronItem.includes("-") || cronItem.includes("/")) {
 		var bounds = cronItem.split("-").map(x => parseInt(x));
 		cronStart = isNaN(bounds[0]) ? cronFirst : bounds[0];
 		if (bounds.length > 1) {
-			cronStop =  isNaN(bounds[1]) ? (isNaN(bounds[0]) ? cronFirst : cronLast) : bounds[1]
+			cronStop = isNaN(bounds[1]) ? (isNaN(bounds[0]) ? cronFirst : cronLast) : bounds[1]
 		}
 
 		var repeats = cronItem.split("-")[0].split("/").map(x => parseInt(x));
@@ -96,34 +96,34 @@ function cronItemParse(cronItem, cronFirst, cronLast) {
 		cronStart = parseInt(cronItem);
 		cronStop = parseInt(cronItem)
 	}
-    else if (cronLast == 59) {
-        cronStep = 5
-    }
-	for (i = cronStart; i <= cronStop; i+= cronStep) {
+	else if (cronLast == 59) {
+		cronStep = 5
+	}
+	for (i = cronStart; i <= cronStop; i += cronStep) {
 		itemOptions.push(i)
 	}
-    //return [cronStart, cronStop, cronStep];
-    return itemOptions;
+	//return [cronStart, cronStop, cronStep];
+	return itemOptions;
 }
 
 function cronScheduleTest(cronExpression) {
 	// parse the current timestamp
-    var testTimestamp = new Date();
+	var testTimestamp = new Date();
 	var testDayOfWeek = testTimestamp.getDay();
 	let [testDate, testTime] = testTimestamp.toISOString().split("T");
 	let [testYear, testMonth, testDayOfMonth] = testDate.split("-").map(x => parseInt(x));
-	let [testHour, testMinute, testSecond] = testTime.slice(0,9).split(":").map(x => parseInt(x));
-	var lastDayOfMonth = (new Date(testYear, testMonth +1, 0)).getDate();
-	
+	let [testHour, testMinute, testSecond] = testTime.slice(0, 9).split(":").map(x => parseInt(x));
+	var lastDayOfMonth = (new Date(testYear, testMonth + 1, 0)).getDate();
+
 	// parse the cron expression
 	let [cronMinutes, cronHours, cronDayOfMonth, cronMonth, cronDayOfWeek] = cronExpression.split(" ");
-	
+
 	// test cron items
 	return cronItemParse(cronMinutes, 0, 59).includes(testMinute)
 		&& cronItemParse(cronHours, 0, 23).includes(testHour)
 		&& cronItemParse(cronDayOfMonth, 1, lastDayOfMonth).includes(testDayOfMonth)
 		&& cronItemParse(cronMonth, 1, 12).includes(testMonth)
-		&& cronItemParse(cronDayOfWeek, 0, 6).includes(testDayOfWeek);		
+		&& cronItemParse(cronDayOfWeek, 0, 6).includes(testDayOfWeek);
 }
 
 return cronScheduleTest(CRON_EXPRESSION);
@@ -148,14 +148,14 @@ AS
 $$
 function cronItemParse(cronItem, cronFirst, cronLast) {
 	var itemOptions = [],
-		cronStart = cronFirst, 
-		cronStop = cronLast, 
+		cronStart = cronFirst,
+		cronStop = cronLast,
 		cronStep = 1;
 	if (cronItem.includes("-") || cronItem.includes("/")) {
 		var bounds = cronItem.split("-").map(x => parseInt(x));
 		cronStart = isNaN(bounds[0]) ? cronFirst : bounds[0];
 		if (bounds.length > 1) {
-			cronStop =  isNaN(bounds[1]) ? (isNaN(bounds[0]) ? cronFirst : cronLast) : bounds[1]
+			cronStop = isNaN(bounds[1]) ? (isNaN(bounds[0]) ? cronFirst : cronLast) : bounds[1]
 		}
 
 		var repeats = cronItem.split("-")[0].split("/").map(x => parseInt(x));
@@ -172,14 +172,14 @@ function cronItemParse(cronItem, cronFirst, cronLast) {
 		cronStart = parseInt(cronItem);
 		cronStop = parseInt(cronItem)
 	}
-    else if (cronLast == 59) {
-        cronStep = 5
-    }
-	for (i = cronStart; i <= cronStop; i+= cronStep) {
+	else if (cronLast == 59) {
+		cronStep = 5
+	}
+	for (i = cronStart; i <= cronStop; i += cronStep) {
 		itemOptions.push(i)
 	}
-    //return [cronStart, cronStop, cronStep];
-    return itemOptions;
+	//return [cronStart, cronStop, cronStep];
+	return itemOptions;
 }
 
 function cronScheduleTest(cronExpression, testTimestamp) {
@@ -187,18 +187,18 @@ function cronScheduleTest(cronExpression, testTimestamp) {
 	var testDayOfWeek = testTimestamp.getDay();
 	let [testDate, testTime] = testTimestamp.toISOString().split("T");
 	let [testYear, testMonth, testDayOfMonth] = testDate.split("-").map(x => parseInt(x));
-	let [testHour, testMinute, testSecond] = testTime.slice(0,9).split(":").map(x => parseInt(x));
-	var lastDayOfMonth = (new Date(testYear, testMonth +1, 0)).getDate();
-	
+	let [testHour, testMinute, testSecond] = testTime.slice(0, 9).split(":").map(x => parseInt(x));
+	var lastDayOfMonth = (new Date(testYear, testMonth + 1, 0)).getDate();
+
 	// parse the cron expression
 	let [cronMinutes, cronHours, cronDayOfMonth, cronMonth, cronDayOfWeek] = cronExpression.split(" ");
-	
+
 	// test cron items
 	return cronItemParse(cronMinutes, 0, 59).includes(testMinute)
 		&& cronItemParse(cronHours, 0, 23).includes(testHour)
 		&& cronItemParse(cronDayOfMonth, 1, lastDayOfMonth).includes(testDayOfMonth)
 		&& cronItemParse(cronMonth, 1, 12).includes(testMonth)
-		&& cronItemParse(cronDayOfWeek, 0, 6).includes(testDayOfWeek);		
+		&& cronItemParse(cronDayOfWeek, 0, 6).includes(testDayOfWeek);
 }
 
 return cronScheduleTest(CRON_EXPRESSION, TEST_TIMESTAMP);

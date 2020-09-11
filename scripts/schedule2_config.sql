@@ -1255,7 +1255,7 @@ FROM VALUES (
   $$
   CALL MANUAL_ENTRY.SELLSIDE_CONTRACT_MANUAL_ENTRY_DAILY_UPDATE(TO_VARCHAR(CURRENT_DATE()))
   $$,
-  'Revenue Forecast', 'BI-860: Method to add manual entry data for revenue', true, 310, 2, '20 3/3-18 * * *'
+  'Revenue Forecast', 'BI-860: Method to add manual entry data for revenue', true, 310, 2, '15 3/3-18 * * *'
   )
 ) S
 ON D.JOB_LABEL = S.JOB_LABEL
@@ -1473,7 +1473,7 @@ FROM VALUES (
     S.PAGEVIEWS
   )
   $$,
-  'Data Poulation', 'BI-1144: Populate sessions and pageviews summary', true, 420, 2, '20 10/2-19 * * *'
+  'Data Poulation', 'BI-1144: Populate sessions and pageviews summary', true, 420, 2, '15 10/2-19 * * *'
   )
 ) S
 ON D.JOB_LABEL = S.JOB_LABEL
@@ -1542,7 +1542,7 @@ FROM VALUES (
       )
   GROUP BY 1,2,3
   $$,
-  'Data Poulation', 'BI-1263: Track the pub_performance spend and revenue for the last 5 days', true, NULL, 2, '20 15 * * *'
+  'Data Poulation', 'BI-1263: Track the pub_performance spend and revenue for the last 5 days', true, NULL, 2, '15 15 * * *'
   )
 ) S
 ON D.JOB_LABEL = S.JOB_LABEL
