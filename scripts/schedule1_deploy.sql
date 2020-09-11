@@ -52,46 +52,45 @@ try {
         ORDER BY JOB_PRIORITY
 		`;
 	var snow_stmt = snowflake.createStatement({
-	  sqlText: snow_sql,
-	  binds: [JOB_ENABLED]
-      }); 
-	var snow_list = snow_stmt.execute(); 
-    
-	while (snow_list.next())
-	{
-        jobLabel = snow_list.getColumnValue(1);
-        jobQuery = snow_list.getColumnValue(2);
-        jobType = snow_list.getColumnValue(3);
-        jobNote = snow_list.getColumnValue(4);
-        try {
-            var job_Stmt = snowflake.createStatement({ sqlText: jobQuery }); 
-            job_rslt = job_Stmt.execute(); 
-        }
-        catch (err1) {
-            job_rslt = 'Error->' + err1; 
-        }    
-        finally {
-            resultSet.push({"query" : jobQuery, "type": jobType, "note": jobNote, "result": job_rslt});
-            var jobStatus = job_rslt.toString().startsWith("Error") ? 'FAILURE' : 'SUCCESS';
-            
-            var snow_sql = `
+		sqlText: snow_sql,
+		binds: [JOB_ENABLED]
+	});
+	var snow_list = snow_stmt.execute();
+
+	while (snow_list.next()) {
+		jobLabel = snow_list.getColumnValue(1);
+		jobQuery = snow_list.getColumnValue(2);
+		jobType = snow_list.getColumnValue(3);
+		jobNote = snow_list.getColumnValue(4);
+		try {
+			var job_Stmt = snowflake.createStatement({ sqlText: jobQuery });
+			job_rslt = job_Stmt.execute();
+		}
+		catch (err1) {
+			job_rslt = 'Error->' + err1;
+		}
+		finally {
+			resultSet.push({ "query": jobQuery, "type": jobType, "note": jobNote, "result": job_rslt });
+			var jobStatus = job_rslt.toString().startsWith("Error") ? 'FAILURE' : 'SUCCESS';
+
+			var snow_sql = `
             UPDATE SINGLE_SNOW_QUERY_JOBS 
             SET TIME_OF_LAST_RUN = CURRENT_TIMESTAMP,
                 STATUS_OF_LAST_RUN = :2
             WHERE JOB_LABEL = :1            
             `;
-            
-            var snow_stmt = snowflake.createStatement({
-              sqlText: snow_sql,
-              binds: [jobLabel, jobStatus]
-              }); 
-            var snow_log = snow_stmt.execute(); 
-            
-        }
-    }
-    	
+
+			var snow_stmt = snowflake.createStatement({
+				sqlText: snow_sql,
+				binds: [jobLabel, jobStatus]
+			});
+			var snow_log = snow_stmt.execute();
+
+		}
+	}
+
 	//-----------------------------------------------
-    // Done and return the result-set
+	// Done and return the result-set
 	//-----------------------------------------------
 	return JSON.stringify(resultSet);
 }
@@ -113,14 +112,14 @@ AS
 $$
 function cronItemParse(cronItem, cronFirst, cronLast) {
 	var itemOptions = [],
-		cronStart = cronFirst, 
-		cronStop = cronLast, 
+		cronStart = cronFirst,
+		cronStop = cronLast,
 		cronStep = 1;
 	if (cronItem.includes("-") || cronItem.includes("/")) {
 		var bounds = cronItem.split("-").map(x => parseInt(x));
 		cronStart = isNaN(bounds[0]) ? cronFirst : bounds[0];
 		if (bounds.length > 1) {
-			cronStop =  isNaN(bounds[1]) ? (isNaN(bounds[0]) ? cronFirst : cronLast) : bounds[1]
+			cronStop = isNaN(bounds[1]) ? (isNaN(bounds[0]) ? cronFirst : cronLast) : bounds[1]
 		}
 
 		var repeats = cronItem.split("-")[0].split("/").map(x => parseInt(x));
@@ -137,14 +136,14 @@ function cronItemParse(cronItem, cronFirst, cronLast) {
 		cronStart = parseInt(cronItem);
 		cronStop = parseInt(cronItem)
 	}
-    else if (cronLast == 59) {
-        cronStep = 5
-    }
-	for (i = cronStart; i <= cronStop; i+= cronStep) {
+	else if (cronLast == 59) {
+		cronStep = 5
+	}
+	for (i = cronStart; i <= cronStop; i += cronStep) {
 		itemOptions.push(i)
 	}
-    //return [cronStart, cronStop, cronStep];
-    return itemOptions;
+	//return [cronStart, cronStop, cronStep];
+	return itemOptions;
 }
 
 function cronScheduleTest(cronExpression, testTimestamp) {
@@ -152,18 +151,18 @@ function cronScheduleTest(cronExpression, testTimestamp) {
 	var testDayOfWeek = testTimestamp.getDay();
 	let [testDate, testTime] = testTimestamp.toISOString().split("T");
 	let [testYear, testMonth, testDayOfMonth] = testDate.split("-").map(x => parseInt(x));
-	let [testHour, testMinute, testSecond] = testTime.slice(0,9).split(":").map(x => parseInt(x));
+	let [testHour, testMinute, testSecond] = testTime.slice(0, 9).split(":").map(x => parseInt(x));
 	var lastDayOfMonth = (new Date(testYear, testMonth, 0)).getDate();
-	
+
 	// parse the cron expression
 	let [cronMinutes, cronHours, cronDayOfMonth, cronMonth, cronDayOfWeek] = cronExpression.split(" ");
-	
+
 	// test cron items
 	return cronItemParse(cronMinutes, 0, 59).includes(testMinute)
 		&& cronItemParse(cronHours, 0, 23).includes(testHour)
 		&& cronItemParse(cronDayOfMonth, 1, lastDayOfMonth).includes(testDayOfMonth)
 		&& cronItemParse(cronMonth, 1, 12).includes(testMonth)
-		&& cronItemParse(cronDayOfWeek, 0, 6).includes(testDayOfWeek);		
+		&& cronItemParse(cronDayOfWeek, 0, 6).includes(testDayOfWeek);
 }
 
 try {
@@ -181,38 +180,36 @@ try {
         ORDER BY JOB_PRIORITY
 		`;
 	var snow_stmt = snowflake.createStatement({
-	  sqlText: snow_sql,
-	  binds: [JOB_ENABLED, BATCH_ID]
-      }); 
-	var snow_list = snow_stmt.execute(); 
-    
-	while (snow_list.next())
-	{
-        jobLabel = snow_list.getColumnValue(1);
-        jobQuery = snow_list.getColumnValue(2);
-        jobType = snow_list.getColumnValue(3);
-        jobNote = snow_list.getColumnValue(4);
-        jobCron = snow_list.getColumnValue(5);
-        try {
-            var job_Stmt = snowflake.createStatement({ sqlText: jobQuery }); 
-            job_rslt = job_Stmt.execute(); 
-        }
-        catch (err1) {
-            job_rslt = 'Error->' + err1; 
-        }    
-        finally {
-            resultSet.push({"query" : jobQuery, "type": jobType, "note": jobNote, "result": job_rslt});
-            var jobStatus = job_rslt.toString().startsWith("Error") ? 'FAILURE' : 'SUCCESS';
+		sqlText: snow_sql,
+		binds: [JOB_ENABLED, BATCH_ID]
+	});
+	var snow_list = snow_stmt.execute();
 
-			var timeMinuteTag = new Date(); timeMinuteTag.setSeconds(0,0);
+	while (snow_list.next()) {
+		jobLabel = snow_list.getColumnValue(1);
+		jobQuery = snow_list.getColumnValue(2);
+		jobType = snow_list.getColumnValue(3);
+		jobNote = snow_list.getColumnValue(4);
+		jobCron = snow_list.getColumnValue(5);
+		try {
+			var job_Stmt = snowflake.createStatement({ sqlText: jobQuery });
+			job_rslt = job_Stmt.execute();
+		}
+		catch (err1) {
+			job_rslt = 'Error->' + err1;
+		}
+		finally {
+			resultSet.push({ "query": jobQuery, "type": jobType, "note": jobNote, "result": job_rslt });
+			var jobStatus = job_rslt.toString().startsWith("Error") ? 'FAILURE' : 'SUCCESS';
+
+			var timeMinuteTag = new Date(); timeMinuteTag.setSeconds(0, 0);
 			//var yearSpan = new Date(timeMinuteTag.setFullYear(timeMinuteTag.getFullYear() + 1));
 			//while ((!cronScheduleTest(jobCron, timeMinuteTag)) && timeMinuteTag <= yearSpan)
-			while (!cronScheduleTest(jobCron, timeMinuteTag))
-			{
-			  timeMinuteTag.setMinutes(timeMinuteTag.getMinutes() + 1);
+			while (!cronScheduleTest(jobCron, timeMinuteTag)) {
+				timeMinuteTag.setMinutes(timeMinuteTag.getMinutes() + 1);
 			}
-           
-            var snow_sql = `
+
+			var snow_sql = `
             UPDATE SINGLE_SNOW_QUERY_JOBS 
             SET TIME_OF_NEXT_SCHEDULE = :4,
 				TIME_OF_LAST_RUN = CURRENT_TIMESTAMP,
@@ -220,18 +217,18 @@ try {
             WHERE JOB_LABEL = :1 
 			AND SCHEDULE_BATCH_ID = :3        
             `;
-            
-            var snow_stmt = snowflake.createStatement({
-              sqlText: snow_sql,
-              binds: [jobLabel, jobStatus, BATCH_ID, timeMinuteTag.toISOString()]
-              }); 
-            var snow_log = snow_stmt.execute(); 
-            
-        }
-    }
-    	
+
+			var snow_stmt = snowflake.createStatement({
+				sqlText: snow_sql,
+				binds: [jobLabel, jobStatus, BATCH_ID, timeMinuteTag.toISOString()]
+			});
+			var snow_log = snow_stmt.execute();
+
+		}
+	}
+
 	//-----------------------------------------------
-    // Done and return the result-set
+	// Done and return the result-set
 	//-----------------------------------------------
 	return JSON.stringify(resultSet);
 }
