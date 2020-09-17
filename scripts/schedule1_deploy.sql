@@ -20,11 +20,11 @@ CREATE OR REPLACE TABLE SINGLE_SNOW_QUERY_JOBS (
   SCHEDULE_BATCH_ID NUMBER COMMENT 'Scheduled in batch by same batch_id',
   SCHEDULE_EXPRESSION VARIANT COMMENT 'Job schedule pattern',        -- 0-23: daily scheduled hour; 24: 24 hours a day
   TIME_OF_NEXT_SCHEDULE TIMESTAMP_NTZ COMMENT 'Time of the next job schedule',
-  TIME_OF_LAST_RUN TIMESTAMP_NTZ COMMENT 'Time of the last job schedule',
-  STATUS_OF_LAST_RUN VARCHAR COMMENT 'SLast run status of the job'
+  TIME_OF_LAST_RUN TIMESTAMP_NTZ COMMENT 'Time of the last time of the job run',
+  STATE_OF_LAST_RUN VARCHAR COMMENT 'State of the last time the job run'
 );
--- ALTER TABLE SINGLE_SNOW_QUERY_JOBS RENAME COLUMN TIME_OF_NEXT_RUN TO TIME_OF_NEXT_SCHEDULE;
-
+-- ALTER TABLE SINGLE_SNOW_QUERY_JOBS RENAME COLUMN STATUS_OF_LAST_RUN TO STATE_OF_LAST_RUN;
+--
 --
 -- Create a job scheduler SP for whole set
 --
@@ -71,12 +71,12 @@ try {
 		}
 		finally {
 			resultSet.push({ "query": jobQuery, "type": jobType, "note": jobNote, "result": job_rslt });
-			var jobStatus = job_rslt.toString().startsWith("Error") ? 'FAILURE' : 'SUCCESS';
+			var jobStatus = job_rslt.toString().startsWith("Error") ? 'FAILED' : 'SUCCEEDED';
 
 			var snow_sql = `
             UPDATE SINGLE_SNOW_QUERY_JOBS 
             SET TIME_OF_LAST_RUN = CURRENT_TIMESTAMP,
-                STATUS_OF_LAST_RUN = :2
+                STATE_OF_LAST_RUN = :2
             WHERE JOB_LABEL = :1            
             `;
 
@@ -200,7 +200,7 @@ try {
 		}
 		finally {
 			resultSet.push({ "query": jobQuery, "type": jobType, "note": jobNote, "result": job_rslt });
-			var jobStatus = job_rslt.toString().startsWith("Error") ? 'FAILURE' : 'SUCCESS';
+			var jobStatus = job_rslt.toString().startsWith("Error") ? 'FAILED' : 'SUCCEEDED';
 
 			var timeMinuteTag = new Date(); timeMinuteTag.setSeconds(0, 0);
 			//var yearSpan = new Date(timeMinuteTag.setFullYear(timeMinuteTag.getFullYear() + 1));
@@ -213,7 +213,7 @@ try {
             UPDATE SINGLE_SNOW_QUERY_JOBS 
             SET TIME_OF_NEXT_SCHEDULE = :4,
 				TIME_OF_LAST_RUN = CURRENT_TIMESTAMP,
-                STATUS_OF_LAST_RUN = :2
+                STATE_OF_LAST_RUN = :2
             WHERE JOB_LABEL = :1 
 			AND SCHEDULE_BATCH_ID = :3        
             `;
@@ -236,8 +236,16 @@ catch (err) {
 	return "Failed: " + err;
 }
 $$;
-
+--
+-- Manual schedule jobs of batch_id=1
+--
 CALL SINGLE_SNOW_QUERY_JOB_SCHEDULER(true);
-
+--
+-- Manual schedule jobs of batch_id=1
+--
 CALL SINGLE_SNOW_QUERY_JOB_SCHEDULER(true, 2);
-select * from SINGLE_SNOW_QUERY_JOBS;
+--
+-- Check state of all jobs
+--
+SELECT * FROM SINGLE_SNOW_QUERY_JOBS;
+--
